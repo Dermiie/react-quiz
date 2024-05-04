@@ -6,15 +6,16 @@ import Error from './Error';
 import StartScreen from './StartScreen';
 import Question from './Question';
 import NextButton from './NextButton';
+import Progress from './Progess';
 
 const initialState = {
   questions: [],
 
   //Loading, ready, error, active, finished
   status: 'loading',
-  index: 1,
+  index: 0,
   answer: null,
-  point: 0,
+  points: 0,
 };
 
 function reducer(state, action) {
@@ -40,10 +41,10 @@ function reducer(state, action) {
       return {
         ...state,
         answer: action.payload,
-        point:
+        points:
           action.payload === question.correctOption
-            ? state.point + question.points
-            : state.point,
+            ? state.points + question.points
+            : state.points,
       };
 
     case 'nextQuestion':
@@ -60,9 +61,10 @@ function reducer(state, action) {
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { questions, status, index, answer } = state;
+  const { questions, status, index, answer, points } = state;
 
   const numOfQuestions = questions.length;
+  const maxPoints = questions.reduce((prev, curr) => prev + curr.points, 0);
 
   useEffect(function () {
     console.log('initial request');
@@ -89,6 +91,13 @@ function App() {
         )}
         {status === 'active' && (
           <>
+            <Progress
+              index={index}
+              numOfQuestions={numOfQuestions}
+              points={points}
+              maxPoints={maxPoints}
+              answer={answer}
+            ></Progress>
             <Question
               questions={questions[index]}
               dispatch={dispatch}
